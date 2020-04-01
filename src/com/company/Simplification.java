@@ -25,19 +25,23 @@ public class Simplification {
             }
             else if (expr.charAt(i) == '*') { sign = '*'; }
             else if (expr.charAt(i) == '+') { sign = '+'; }
-            else if (expr.charAt(i) == 'a') { power = power.isEmpty() ? "a" : power + "*a"; }
+            else if (expr.charAt(i) == 'a') {
+                value = power.isEmpty() && value == 0 ? 1 : value;
+                if (isNegative) { value = value * -1; isNegative = false; }
+                power = power.isEmpty() ? "a" : power + "*a";
+            }
             else if (expr.charAt(i) == '-') {
+                isNegative = prevChar != '-';
                 sign = prevChar == '*' ? '*' : '-';
-                isNegative = true;
             }
 
             if (i == expr.length() - 1 || expr.charAt(i) == '+' || expr.charAt(i) == '-' && sign != '*') {
-                if (!power.equals("") && value == 0) { value++; }
                 if (powerMap.containsKey(power)) { value += powerMap.get(power); }
                 powerMap.put(power, value);
                 value = 0;
                 power = "";
             }
+
             prevChar = expr.charAt(i);
             i++;
         }
@@ -59,12 +63,13 @@ public class Simplification {
         String result = "";
         for (Map.Entry expr : powerMap.entrySet()) {
             if (expr.getKey().equals("") && expr.getValue().equals(0)) { continue; }
-            if (!result.isEmpty()) { result += "+"; }
-            if (expr.getKey().equals("") || !expr.getValue().equals(1)) {
+            if (!expr.getKey().equals("") && expr.getValue().equals(-1)) { result += "-"; }
+            else if (!result.isEmpty()) { result += "+"; }
+            if (expr.getKey().equals("") || !expr.getValue().equals(1) && !expr.getValue().equals(0) && !expr.getValue().equals(-1)) {
                 result += expr.getValue();
                 if (!expr.getKey().equals("")) { result += "*"; };
             }
-            if (!expr.getKey().equals("")) { result += expr.getKey(); }
+            if (!expr.getKey().equals("") && !expr.getValue().equals(0)) { result += expr.getKey(); }
         }
         result = result.replaceAll("\\+-", "-");
         return result;

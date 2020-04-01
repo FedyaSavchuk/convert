@@ -14,9 +14,10 @@ class Parentheses {
         while (i < expr.length()) {
             if (expr.charAt(i) == '*') { lastSign = '*'; }
             else if (expr.charAt(i) == '+' || i > 0 && expr.charAt(i) == '-' && expr.charAt(i - 1) != '*') {
+                if (i > 0 && expr.charAt(i - 1) == '-') { tempString = ""; i++; continue; }
                 if (!bracketsResult.isEmpty() && lastSign == '*') { result.addAll(multBrackets(bracketsResult, tempString)); }
                 else if (!bracketsResult.isEmpty()) { result.addAll(bracketsResult); }
-                else if (!tempString.isEmpty() && !tempString.equals("+")) { result.add(tempString); }
+                else if (!tempString.isEmpty() && !tempString.equals("+") && !tempString.equals("-")) { result.add(tempString); }
 
                 bracketsResult.clear();
                 tempString = "";
@@ -28,7 +29,7 @@ class Parentheses {
                 String insideBrackets = expr.substring(start + 1, i);
                 bracketsResult = openBrackets(bracketsResult, insideBrackets, lastSign, tempString);
 
-                if (!tempString.isEmpty() && !tempString.equals("+") && lastSign != '*') { result.add(tempString); }
+                if (!tempString.isEmpty() && !tempString.equals("+") && !tempString.equals("-") && lastSign != '*') { result.add(tempString); }
                 tempString = "";
             }
 
@@ -37,7 +38,7 @@ class Parentheses {
         }
         if (!bracketsResult.isEmpty() && lastSign == '*') { result.addAll(multBrackets(bracketsResult, tempString)); }
         else if (!bracketsResult.isEmpty()) { result.addAll(bracketsResult); }
-        else if (!tempString.isEmpty() && !tempString.equals("+")) { result.add(tempString); }
+        else if (!tempString.isEmpty() && !tempString.equals("+") && !tempString.equals("-")) { result.add(tempString); }
 
         return result;
     }
