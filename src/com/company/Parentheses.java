@@ -3,6 +3,24 @@ package com.company;
 import java.util.*;
 
 class Parentheses {
+    static String initialization(String expr) {
+        expr = expr.replaceAll(" ", "");
+        expr = expr.replaceAll("element", "a");
+        List<String> result = Parentheses.parentheses(expr);
+
+        String forSimplify = "";
+        for (String part : result) {
+            if (part.startsWith("+") || part.startsWith("-") || part.startsWith("*")) {
+                forSimplify += part;
+            }
+            else {
+                forSimplify += "+" + part;
+            }
+        }
+        forSimplify = Simplification.simplify(forSimplify);
+        return forSimplify;
+    }
+
     static List<String> parentheses(String expr) {
         List<String> result = new ArrayList<>();
         List<String> bracketsResult = new ArrayList<>();

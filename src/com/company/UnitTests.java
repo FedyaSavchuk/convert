@@ -733,17 +733,7 @@ public class UnitTests {
 
     @Test
     public void test47() {
-        List<String> result = Parentheses.parentheses("+3+(a)");
-        String forSimplify = "";
-        for (String part : result) {
-            if (part.startsWith("+") || part.startsWith("-") || part.startsWith("*")) {
-                forSimplify += part;
-            }
-            else {
-                forSimplify += "+" + part;
-            }
-        }
-
+        String forSimplify = Parentheses.initialization("+3+(a)");
         Assert.assertEquals("3+a", Simplification.simplify(forSimplify));
     }
 
