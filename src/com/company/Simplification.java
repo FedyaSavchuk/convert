@@ -1,11 +1,11 @@
 package com.company;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Simplification {
     public static String simplify(String expr) {
         Map<String, Integer> powerMap = new HashMap<>();
+        expr = expr.replaceAll("element", "a");
         char prevChar = ' ';
         String power = "";
         boolean isNegative = false;
@@ -46,7 +46,9 @@ public class Simplification {
             i++;
         }
 
-        return factoring(powerMap);
+        String result = factoring(powerMap);
+        result = result.replaceAll("a", "element");
+        return result;
     }
 
     private static int getNumber(String expr, int i, boolean isNegative) {

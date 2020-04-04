@@ -1,158 +1,129 @@
 package com.company;
-
 import java.util.*;
 
 class Parentheses {
-    static String initialization(String expr) {
-        expr = expr.replaceAll(" ", "");
-        expr = expr.replaceAll("element", "a");
-        List<String> result = Parentheses.parentheses(expr);
+    static private int i = 0;
 
-        String forSimplify = "";
-        for (String part : result) {
-            if (part.startsWith("+") || part.startsWith("-") || part.startsWith("*")) {
-                forSimplify += part;
-            }
-            else {
-                forSimplify += "+" + part;
-            }
-        }
-        forSimplify = Simplification.simplify(forSimplify);
-        return forSimplify;
+    static String parentheses(String expression, String type) {
+        List<Character> validOperations = new ArrayList<>();
+        if (type.equals("boolean")) { validOperations = Arrays.asList('>', '<', '=', '&', '|'); }
+        else if (type.equals("arithmetic")) { validOperations = Arrays.asList('+', '-', '*'); }
+
+        expression = expression.replaceAll("element", "a");
+        expression = expression.replaceAll(" ", "");
+
+        List<String> result;
+        char[] exprArray = expression.toCharArray();
+        result = conveer(exprArray, validOperations);
+
+        if (result == null) { return null; }
+        if (i != expression.length()) { error(1); return null; }
+        i = 0;
+
+        return String.join("", result).replaceAll("a", "element");
     }
 
-    static List<String> parentheses(String expr) {
+    private static List<String> conveer(char[] exprArray, List<Character> validOperations) {
+        List<String> firstPartResult;
+        List<String> secondPartResult;
+
+        if (exprArray[i] == '(') { i++; }
+        else return error(1);
+
+        firstPartResult = expression(exprArray, validOperations);
+        char sign = exprArray[i];
+        if (!validOperations.contains(sign)) { return error(2); }
+        i++;
+        secondPartResult = expression(exprArray, validOperations);
+
+        if (exprArray[i] != ')') { return error(1); }
+        i++;
+
+        return calculation(firstPartResult, secondPartResult, sign);
+    }
+
+    private static List<String> expression(char[] exprArray, List<Character> validOperations) {
         List<String> result = new ArrayList<>();
-        List<String> bracketsResult = new ArrayList<>();
-
-        int i = 0;
-        char lastSign = '+';
-        String tempString = "";
-
-        while (i < expr.length()) {
-            if (expr.charAt(i) == '*') { lastSign = '*'; }
-            else if (expr.charAt(i) == '+' || i > 0 && expr.charAt(i) == '-' && expr.charAt(i - 1) != '*') {
-                if (i > 0 && expr.charAt(i - 1) == '-') { tempString = ""; i++; continue; }
-                if (!bracketsResult.isEmpty() && lastSign == '*') { result.addAll(multBrackets(bracketsResult, tempString)); }
-                else if (!bracketsResult.isEmpty()) { result.addAll(bracketsResult); }
-                else if (!tempString.isEmpty() && !tempString.equals("+") && !tempString.equals("-")) { result.add(tempString); }
-
-                bracketsResult.clear();
-                tempString = "";
-                lastSign = expr.charAt(i);
-            }
-            else if (expr.charAt(i) == '(') {
-                int start = i;
-                i = endBracketsSearch(expr, i);
-                String insideBrackets = expr.substring(start + 1, i);
-                bracketsResult = openBrackets(bracketsResult, insideBrackets, lastSign, tempString);
-
-                if (!tempString.isEmpty() && !tempString.equals("+") && !tempString.equals("-") && lastSign != '*') { result.add(tempString); }
-                tempString = "";
-            }
-
-            if (i < expr.length() && expr.charAt(i) != ')') { tempString += expr.charAt(i); }
-            i++;
+        if (exprArray[i] == 'a') { result.add("a"); i++; }
+        else if (exprArray[i] == '(') { result.addAll(conveer(exprArray, validOperations)); }
+        else if (Character.isDigit(exprArray[i])) { result.add(getNumber(exprArray, false)); }
+        else if (exprArray[i] == '-' && Character.isDigit(exprArray[i + 1])) {
+            result.add(getNumber(exprArray, true));
         }
-        if (!bracketsResult.isEmpty() && lastSign == '*') { result.addAll(multBrackets(bracketsResult, tempString)); }
-        else if (!bracketsResult.isEmpty()) { result.addAll(bracketsResult); }
-        else if (!tempString.isEmpty() && !tempString.equals("+") && !tempString.equals("-")) { result.add(tempString); }
+        else { return null; }
 
         return result;
     }
 
-    private static List<String> openBrackets(List<String> bracketsResult, String insideBrackets, char lastSign, String tempString) {
-        if (!bracketsResult.isEmpty() && lastSign == '*') {
-            List<String> secondBrackets = parentheses(insideBrackets);
-            bracketsResult = multTwoBrackets(secondBrackets, bracketsResult);
-        }
-        else { bracketsResult = parentheses(insideBrackets); }
+    private static List<String> calculation(List<String> firstPartResult, List<String> secondPartResult, char sign) {
+        List<String> temp = new ArrayList<>();
+        if (sign == '*') { temp = multiplication(firstPartResult, secondPartResult); }
+        else if (sign == '+') { temp = addition(firstPartResult, secondPartResult); }
+        else if (sign == '-') { temp = subtract(firstPartResult, secondPartResult); }
 
-        if (lastSign == '*') { bracketsResult = multBrackets(bracketsResult, tempString); }
-        else if (lastSign == '-') { bracketsResult = openNegativeBrackets(bracketsResult); }
-
-        return bracketsResult;
+        return temp;
     }
 
-
-    private static List<String> openNegativeBrackets(List<String> negativeExpr) {
-        List<String> bracketsResult = new ArrayList<>();
-
-        for (String expr : negativeExpr) {
-            if (expr.startsWith("+-")) { bracketsResult.add(expr.substring(2)); }
-            else if (expr.startsWith("-")) { bracketsResult.add("+" + expr.substring(1)); }
-            else if (expr.startsWith("+")) { bracketsResult.add("-" + expr.substring(1)); }
-            else { bracketsResult.add("-" + expr); }
+    private static List<String> multiplication(List<String> firstPartResult, List<String> secondPartResult) {
+        List<String> temp = new ArrayList<>();
+        for (String i : firstPartResult) {
+            for (String j : secondPartResult) {
+                if (i.startsWith("+") && j.startsWith("+")) {
+                    temp.add(j + "*" + i.substring(1));
+                } else if (j.startsWith("+") || j.startsWith("-")) {
+                    temp.add(j + "*" + i);
+                } else {
+                    temp.add(i + "*" + j);
+                }
+            }
         }
 
-        return bracketsResult;
+        return temp;
     }
 
+    private static List<String> subtract(List<String> firstPartResult, List<String> secondPartResult) {
+        List<String> temp = new ArrayList<>(firstPartResult);
 
-    private static int endBracketsSearch(String expr, int i) {
-        Stack<Character> brackets = new Stack<>();
-        brackets.add('(');
+        for (String exprPart : secondPartResult) {
+            if (exprPart.startsWith("+-")) { temp.add(exprPart.substring(2)); }
+            else if (exprPart.startsWith("-")) { temp.add("+" + exprPart.substring(1)); }
+            else if (exprPart.startsWith("+")) { temp.add("-" + exprPart.substring(1)); }
+            else { temp.add("-" + exprPart); }
+        }
 
-        while (!brackets.isEmpty()) {
+        return temp;
+    }
+
+    private static List<String> addition(List<String> firstPartResult, List<String> secondPartResult) {
+        List<String> temp = new ArrayList<>(firstPartResult);
+
+        for (String exprPart : secondPartResult) {
+            if (!exprPart.startsWith("-") && !exprPart.startsWith("+")) { temp.add("+" + exprPart); }
+            else { temp.add(exprPart); }
+        }
+
+        return temp;
+    }
+
+    private static String getNumber(char[] exprArray, boolean isNegative) {
+        StringBuilder number = new StringBuilder();
+
+        if (isNegative) { number.append("-"); i++; }
+        while (i < exprArray.length && Character.isDigit(exprArray[i])) {
+            number.append(exprArray[i]);
             i++;
-            if (expr.charAt(i) == '(') { brackets.add('('); }
-            else if (expr.charAt(i) == ')') {
-                if (brackets.peek() == '(') { brackets.pop(); }
-                else { System.out.println("ERROR"); }
-            }
         }
 
-        return i;
+        return number.toString();
     }
 
-
-    private static List<String> multBrackets(List<String> elem, String expr) {
-        List<String> temp = new ArrayList<>();
-        if (expr.endsWith("*")) { expr = expr.substring(0, expr.length() - 1); }
-        else if (expr.startsWith("*")) { expr = expr.substring(1); }
-        if (expr.isEmpty()) { return elem; }
-
-        for (String i : elem) {
-            if (expr.startsWith("+")) { expr = expr.substring(1); }
-            temp.add(i + "*" + expr);
+    private static List<String> error(int codeError) {
+        switch (codeError) {
+            case 1:
+                System.out.println("SYNTAX ERROR");
+            case 2:
+                System.out.println("TYPE ERROR");
         }
-
-        return temp;
-    }
-
-
-    private static List<String> multTwoBrackets(List<String> firstBrackets, List<String> secondBrackets) {
-        List<String> temp = new ArrayList<>();
-        if (secondBrackets.isEmpty()) {
-            temp.addAll(firstBrackets);
-        }
-        for (String i : firstBrackets) {
-            for (String j : secondBrackets) {
-                if (j.startsWith("+")) { j = j.substring(1); }
-                temp.add(i + "*" + j);
-            }
-        }
-
-        return temp;
-    }
-
-
-    // TODO Use ENUM for mapping codeError and ErrorMessage
-    private static int checkErrors(char prevChar, char presentChar) {
-        Boolean prevCharIsOperation = prevChar == '*' || prevChar == '-' || prevChar == '+';
-        Boolean presentCharIsOperation = presentChar == '*' || presentChar == '+' || presentChar == '-';
-
-        if (Character.isDigit(prevChar) && presentChar == 'a') {
-            System.out.println("Error!\nUse '*' between '" + prevChar + "' and '" + presentChar + "'");
-        } else if (Character.isDigit(presentChar) && prevChar == 'a') {
-            System.out.println("Error!\nUse '*' between '" + presentChar + "' and '" + prevChar + "'");
-        } else if (prevCharIsOperation && presentCharIsOperation) {
-            System.out.println("Error!\nUse number between two operation '" + presentChar + "' and '" + prevChar + "'");
-        } else if (!Character.isDigit(presentChar) && !presentCharIsOperation && presentChar != 'a') {
-            System.out.println("Error!\nNon Valid symbol '" + presentChar + "'");
-        } else {
-            return 0;
-        }
-        return 1;
+        return null;
     }
 }
