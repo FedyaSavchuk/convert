@@ -7,6 +7,7 @@ import java.util.Scanner;
 public class Convertor {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        System.out.print("\nPrint expression for conversion: \n");
         String[] expressions = scanner.nextLine().split("%>%");
 
         convert(expressions);
@@ -74,7 +75,7 @@ public class Convertor {
         }
 
 	    String result = "filter{" + filter + "}%>%map{(" + map + ")}";
-        System.out.println(result);
+        System.out.println("> " + result);
         return result;
     }
 }
