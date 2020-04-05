@@ -1,8 +1,10 @@
 package main;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Simplification {
+
     public static String simplify(String expr) {
         Map<String, Integer> powerMap = new HashMap<>();
         expr = expr.replaceAll("element", "a");
@@ -53,6 +55,7 @@ public class Simplification {
         return result;
     }
 
+
     private static int getNumber(String expr, int i, boolean isNegative) {
         int start = i;
 
@@ -62,6 +65,7 @@ public class Simplification {
 
         return number;
     }
+
 
     private static String factoring(Map<String, Integer> powerMap) {
         String result = "";

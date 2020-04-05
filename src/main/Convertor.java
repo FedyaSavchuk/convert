@@ -53,8 +53,8 @@ public class Convertor {
             }
 
 	        else {
-                System.out.println("SYNTAX ERROR");
-                return "SYNTAX ERROR";
+                Errors.error(1);
+                return null;
             }
         }
 

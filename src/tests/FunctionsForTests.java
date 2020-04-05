@@ -1,7 +1,7 @@
 package tests;
-
-import Convert.Parentheses;
-import Convert.Simplification;
+import main.Convertor.*;
+import main.Parentheses;
+import main.Simplification;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;

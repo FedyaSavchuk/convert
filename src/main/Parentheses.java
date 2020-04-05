@@ -20,30 +20,32 @@ public class Parentheses {
         result = conveer(exprArray, validOperations);
 
         if (result == null) { i = 0; return null; }
-        if (i != expression.length()) { error(1); i = 0; return null; }
+        if (i != expression.length()) { Errors.error(1); i = 0; return null; }
         i = 0;
 
         return String.join("", result).replaceAll("a", "element");
     }
+
 
     private static List<String> conveer(char[] exprArray, List<Character> validOperations) {
         List<String> firstPartResult;
         List<String> secondPartResult;
 
         if (exprArray[i] == '(') { i++; }
-        else return error(1);
+        else return Errors.error(1);
 
         firstPartResult = expression(exprArray, validOperations);
         char sign = exprArray[i];
-        if (!validOperations.contains(sign)) { return error(2); }
+        if (!validOperations.contains(sign)) { return Errors.error(2); }
         i++;
         secondPartResult = expression(exprArray, validOperations);
 
-        if (exprArray[i] != ')') { return error(1); }
+        if (exprArray[i] != ')') { return Errors.error(1); }
         i++;
 
         return calculation(firstPartResult, secondPartResult, sign);
     }
+
 
     private static List<String> expression(char[] exprArray, List<Character> validOperations) {
         List<String> result = new ArrayList<>();
@@ -58,6 +60,7 @@ public class Parentheses {
         return result;
     }
 
+
     private static List<String> calculation(List<String> firstPartResult, List<String> secondPartResult, char sign) {
         List<String> temp = new ArrayList<>();
         if (sign == '*') { temp = multiplication(firstPartResult, secondPartResult); }
@@ -66,6 +69,7 @@ public class Parentheses {
 
         return temp;
     }
+
 
     private static List<String> multiplication(List<String> firstPartResult, List<String> secondPartResult) {
         List<String> temp = new ArrayList<>();
@@ -84,6 +88,7 @@ public class Parentheses {
         return temp;
     }
 
+
     private static List<String> subtract(List<String> firstPartResult, List<String> secondPartResult) {
         List<String> temp = new ArrayList<>(firstPartResult);
 
@@ -97,6 +102,7 @@ public class Parentheses {
         return temp;
     }
 
+
     private static List<String> addition(List<String> firstPartResult, List<String> secondPartResult) {
         List<String> temp = new ArrayList<>(firstPartResult);
 
@@ -108,6 +114,7 @@ public class Parentheses {
         return temp;
     }
 
+
     private static String getNumber(char[] exprArray, boolean isNegative) {
         StringBuilder number = new StringBuilder();
 
@@ -118,15 +125,5 @@ public class Parentheses {
         }
 
         return number.toString();
-    }
-
-    private static List<String> error(int codeError) {
-        switch (codeError) {
-            case 1:
-                System.out.println("SYNTAX ERROR");
-            case 2:
-                System.out.println("TYPE ERROR");
-        }
-        return null;
     }
 }
