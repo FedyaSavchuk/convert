@@ -1,10 +1,10 @@
-package com.company;
-import java.lang.reflect.Array;
+package main;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main {
+public class Convertor {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String[] expressions = scanner.nextLine().split("%>%");

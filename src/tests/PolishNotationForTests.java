@@ -1,9 +1,7 @@
-package com.company.Tests;
+package tests;
 
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Stack;
 
 public class PolishNotationForTests {
 

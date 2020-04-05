@@ -1,8 +1,9 @@
-package com.company.Tests;
-import com.company.Main;
-import com.company.Simplification;
-import org.junit.*;
-import java.io.ByteArrayInputStream;
+package tests;
+import main.Convertor;
+import org.junit.Assert;
+import org.junit.Test;
+
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{(element+10)}%>%filter{(element>10)}%>%map{(element*element)}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = main.Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -27,7 +28,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{(element+10)}%>%filter{(element>10)}%>%map{(element*element)}%>%map{(element+10)}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -39,7 +40,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{(element+10)}%>%filter{(element>10)}%>%filter{(element>100)}%>%map{(element*element)}%>%map{(element+10)}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -51,7 +52,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{(element-(element*element))}%>%filter{(element>(10<2))}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -63,7 +64,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{((element*element)*(element-5))}%>%filter{(element>(10<(element|element)))}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -75,7 +76,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{((element*element)*(element-(5+element)))}%>%filter{(element>(10<(element|element)))}%>%map{(element*element)}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -87,7 +88,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{((element*element)*(element-(5+element)))}%>%filter{(element<(10&(element|element)))}%>%map{(element*element)}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -99,7 +100,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{((element*(element+3))*(element-(5+element)))}%>%filter{(element<(10&(element|element)))}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -112,7 +113,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{((element*(element+3))*(element-(5+element)))}%>%filter{(element<(10&(element|element)))}%>%map{(element+10)}%>%filter{(element>5)}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -126,7 +127,7 @@ public class ConvertTests extends Assert {
                 "%>%map{((element*(element+3))*(element-(5+element)))}%>%filter{(element<(10&(element|element)))}%>%map{(element+10)}%>%filter{(element>5)}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -138,7 +139,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "filter{(element>10)}%>%filter{(element<20)}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -150,7 +151,7 @@ public class ConvertTests extends Assert {
         String standardExpr = "map{(element+10)}%>%filter{(element>10)}%>%map{(element*element)}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
@@ -164,7 +165,7 @@ public class ConvertTests extends Assert {
                 "%>%filter{(element>5)}%>%map{(element*(element*-1))}%>%filter{(element<(10&(element|element)))}%>%map{(element-(10+5))}";
         FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
-        String myExpression = Main.convert(expressions);
+        String myExpression = Convertor.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
 
         FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
