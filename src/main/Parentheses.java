@@ -3,6 +3,7 @@ package main;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 
 public class Parentheses {
     static private int i = 0;
@@ -28,20 +29,25 @@ public class Parentheses {
 
 
     private static List<String> conveer(char[] exprArray, List<Character> validOperations) {
+        List<Character> boolOperations = Arrays.asList('>', '<', '=', '&', '|');
+        List<Character> arithmeticOperations = Arrays.asList('+', '-', '*');
         List<String> firstPartResult;
         List<String> secondPartResult;
+        Stack<Character> brackets = new Stack<>();
 
-        if (exprArray[i] == '(') { i++; }
-        else return Errors.error(1);
+        if (exprArray[i] == '(') { i++; brackets.add('('); }
+        else Errors.error(1);
 
         firstPartResult = expression(exprArray, validOperations);
+        if (i >= exprArray.length || firstPartResult == null) { i = 0; Errors.error(1); }
         char sign = exprArray[i];
-        if (!validOperations.contains(sign)) { return Errors.error(2); }
+        if (!boolOperations.contains(sign) && !arithmeticOperations.contains(sign)) { i = 0; Errors.error(1); }
+        else if (!validOperations.contains(sign)) { i = 0; Errors.error(2); }
         i++;
         secondPartResult = expression(exprArray, validOperations);
 
-        if (exprArray[i] != ')') { return Errors.error(1); }
-        i++;
+        if (exprArray[i] == ')') { i++; brackets.pop(); }
+        if (!brackets.isEmpty() || secondPartResult == null) { i = 0; Errors.error(1); }
 
         return calculation(firstPartResult, secondPartResult, sign);
     }
@@ -50,7 +56,11 @@ public class Parentheses {
     private static List<String> expression(char[] exprArray, List<Character> validOperations) {
         List<String> result = new ArrayList<>();
         if (exprArray[i] == 'a') { result.add("a"); i++; }
-        else if (exprArray[i] == '(') { result.addAll(conveer(exprArray, validOperations)); }
+        else if (exprArray[i] == '(') {
+            List<String> bracketsResult = conveer(exprArray, validOperations);
+            if (bracketsResult == null) { i = 0; return null; }
+            result.addAll(bracketsResult);
+        }
         else if (Character.isDigit(exprArray[i])) { result.add(getNumber(exprArray, false)); }
         else if (exprArray[i] == '-' && Character.isDigit(exprArray[i + 1])) {
             result.add(getNumber(exprArray, true));

@@ -25,7 +25,6 @@ public class Convertor {
                 if (map.equals("element")) {
 	                map = mapExp;
                 } else {
-
                     mapExp = mapExp.replaceAll("element", map);
                     map = mapExp;
                 }
@@ -35,10 +34,9 @@ public class Convertor {
                 String filterExp = exp.substring(7, exp.length() - 1);
                 if (!map.equals("element")) {
                     String temp = Parentheses.parentheses(map, "arithmetic");
+                    if (temp == null) { return null; }
                     filterExp = filterExp.replaceAll("element", Simplification.simplify(temp));
                 }
-
-
 
 	            if (filter.isEmpty() && map.isEmpty()) {
 	                filter = exp;
@@ -71,6 +69,7 @@ public class Convertor {
 
         if (!map.equals("element")) {
             map = Parentheses.parentheses(map, "arithmetic");
+            if (map == null) { return null; }
             map = Simplification.simplify(map);
         }
 
