@@ -7,118 +7,168 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConvertTests extends Assert {
-    private static int i = 0;
-
-    private void createInput(String expression) {
-        ByteArrayInputStream in = new ByteArrayInputStream(expression.getBytes());
-        System.setIn(in);
-        System.setIn(System.in);
-    }
-
-    private String calculateCallChain(String expressions, String number) {
-        String[] exprArray = expressions.split("%>%");
-        String value = "";
-        for (String exp : exprArray) {
-            exp = exp.replaceAll("element", number);
-
-            if (exp.startsWith("map{(") && exp.endsWith(")}")) {
-                String mapExp = exp.substring(4, exp.length() - 1);
-                value = Simplification.simplify(mapExp);
-                number = value;
-                i = 0;
-            } else if (exp.startsWith("filter{(") && exp.endsWith(")}")) {
-                String filterExp = exp.substring(7, exp.length() - 1);
-                // TODO compare
-                i = 0;
-                if (calculation(filterExp).equals("0")) { return null; }
-            }
-        }
-        i = 0;
-        return value;
-    }
-
-    private String calculation(String filterExpr) {
-        if (filterExpr.charAt(i) == '(') { i++; }
-        String firstPartResult = expression(filterExpr);
-        if (filterExpr.charAt(i) == ')') { i++; return firstPartResult; }
-
-        char sign = filterExpr.charAt(i);
-        i++;
-        String secondPartResult = expression(filterExpr);
-        if (firstPartResult.equals("")) { firstPartResult = "0"; }
-        if (secondPartResult.equals("")) { secondPartResult = "0"; }
-
-        if (filterExpr.charAt(i) == ')') { i++; }
-        return compare(firstPartResult, secondPartResult, sign);
-
-    }
-
-    private String expression(String exprArray) {
-        String result = "";
-
-        while (i < exprArray.length()) {
-            if (exprArray.charAt(i) == '(') { result += calculation(exprArray); }
-            else if (Character.isDigit(exprArray.charAt(i))) { result += getNumber(exprArray, false); }
-            else if (exprArray.charAt(i) == '-' && Character.isDigit(exprArray.charAt(i + 1))) {
-                result += getNumber(exprArray, true);
-            }
-            else if (exprArray.charAt(i) == '+' || exprArray.charAt(i) == '-' || exprArray.charAt(i) == '*') {
-                result += exprArray.charAt(i);
-                i++;
-            }
-            else { break; }
-        }
-
-        return result;
-    }
-
-    private String getNumber(String exprArray, boolean isNegative) {
-        StringBuilder number = new StringBuilder();
-        if (isNegative) { number.append("-"); i++; }
-        while (i < exprArray.length() && Character.isDigit(exprArray.charAt(i))) {
-            number.append(exprArray.charAt(i));
-            i++;
-        }
-
-        return number.toString();
-    }
-
-    private String compare(String firstPartResult, String secondPartResult, char sign) {
-        firstPartResult = Simplification.simplify(firstPartResult);
-        secondPartResult = Simplification.simplify(secondPartResult);
-        int firstNumber = Integer.parseInt(firstPartResult);
-        int secondNumber = Integer.parseInt(secondPartResult);
-        String result = "";
-
-        if (sign == '>') { result = firstNumber > secondNumber ? "1" : "0"; }
-        else if (sign == '<') { result = firstNumber < secondNumber ? "1" : "0"; }
-        else if (sign == '=') { result = firstNumber == secondNumber ? "1" : "0"; }
-        else if (sign == '&') { result = firstNumber != 0 && secondNumber != 0 ? "1" : "0"; }
-        else if (sign == '|') { result = firstNumber != 0 || secondNumber != 0 ? "1" : "0"; }
-
-        return result;
-    }
+    private List<String> myExprResult = new ArrayList<>();
+    private List<String> standardExprResult = new ArrayList<>();
 
     @Test
     public void test1() {
         String standardExpr = "map{(element+10)}%>%filter{(element>10)}%>%map{(element*element)}";
-        createInput(standardExpr);
+        FunctionsForTests.createInput(standardExpr);
         String[] expressions = standardExpr.split("%>%");
         String myExpression = Main.convert(expressions);
         String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
-        List<String> myExprResult = new ArrayList<>();
-        List<String> standardExprResult = new ArrayList<>();
 
-        for (String number : numbers) {
-            String temp = myExpression;
-            String result = calculateCallChain(temp, number);
-            if (result != null) { myExprResult.add(result); }
-
-            temp = standardExpr;
-            result = calculateCallChain(temp, number);
-            if (result != null) { standardExprResult.add(result); }
-        }
-
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
         assertEquals(myExprResult, standardExprResult);
     }
+
+    @Test
+    public void test2() {
+        String standardExpr = "map{(element+10)}%>%filter{(element>10)}%>%map{(element*element)}%>%map{(element+10)}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test3() {
+        String standardExpr = "map{(element+10)}%>%filter{(element>10)}%>%filter{(element>100)}%>%map{(element*element)}%>%map{(element+10)}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test4() {
+        String standardExpr = "map{(element-(element*element))}%>%filter{(element>(10<2))}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test5() {
+        String standardExpr = "map{((element*element)*(element-5))}%>%filter{(element>(10<(element|element)))}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test6() {
+        String standardExpr = "map{((element*element)*(element-(5+element)))}%>%filter{(element>(10<(element|element)))}%>%map{(element*element)}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test7() {
+        String standardExpr = "map{((element*element)*(element-(5+element)))}%>%filter{(element<(10&(element|element)))}%>%map{(element*element)}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test8() {
+        String standardExpr = "map{((element*(element+3))*(element-(5+element)))}%>%filter{(element<(10&(element|element)))}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test9() {
+        PolishNotationForTests.polishNotaton("10-15*20+-5*20*20");
+        String standardExpr = "map{((element*(element+3))*(element-(5+element)))}%>%filter{(element<(10&(element|element)))}%>%map{(element+10)}%>%filter{(element>5)}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+
+    @Test
+    public void test10() {
+        String standardExpr = "map{(5*element)}%>%filter{(element<(10&(element|element)))}%>%map{(element+10)}%>%filter{(element>5)}" +
+                "%>%map{((element*(element+3))*(element-(5+element)))}%>%filter{(element<(10&(element|element)))}%>%map{(element+10)}%>%filter{(element>5)}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test11() {
+        String standardExpr = "filter{(element>10)}%>%filter{(element<20)}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test12() {
+        String standardExpr = "map{(element+10)}%>%filter{(element>10)}%>%map{(element*element)}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
+    @Test
+    public void test13() {
+        String standardExpr = "map{(5*element)}%>%filter{(element<(10&(element|element)))}%>%map{(element+10)}%>%filter{(element>5)}" +
+                "%>%map{((element*(element+3))*(element-(5+element)))}%>%filter{(element<(10&(element|element)))}%>%map{(element+10)}%>%filter{(element>5)}" +
+                "%>%filter{(element>5)}%>%map{(element*(element*-1))}%>%filter{(element<(10&(element|element)))}%>%map{(element-(10+5))}";
+        FunctionsForTests.createInput(standardExpr);
+        String[] expressions = standardExpr.split("%>%");
+        String myExpression = Main.convert(expressions);
+        String[] numbers = {"0", "-5", "20", "1", "264", "34", "-24", "0", "284", "-638"};
+
+        FunctionsForTests.applyFeatures(standardExpr, myExpression, numbers, myExprResult, standardExprResult);
+        assertEquals(myExprResult, standardExprResult);
+    }
+
 }

@@ -6,6 +6,8 @@ public class Simplification {
     public static String simplify(String expr) {
         Map<String, Integer> powerMap = new HashMap<>();
         expr = expr.replaceAll("element", "a");
+        expr = expr.replaceAll("[()]", "");
+        expr = expr.replaceAll("\\*\\+", "*");
         char prevChar = ' ';
         String power = "";
         boolean isNegative = false;

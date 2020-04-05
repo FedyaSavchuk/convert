@@ -1,10 +1,10 @@
 package com.company;
 import java.util.*;
 
-class Parentheses {
+public class Parentheses {
     static private int i = 0;
 
-    static String parentheses(String expression, String type) {
+    public static String parentheses(String expression, String type) {
         List<Character> validOperations = new ArrayList<>();
         if (type.equals("boolean")) { validOperations = Arrays.asList('>', '<', '=', '&', '|'); }
         else if (type.equals("arithmetic")) { validOperations = Arrays.asList('+', '-', '*'); }
@@ -16,8 +16,8 @@ class Parentheses {
         char[] exprArray = expression.toCharArray();
         result = conveer(exprArray, validOperations);
 
-        if (result == null) { return null; }
-        if (i != expression.length()) { error(1); return null; }
+        if (result == null) { i = 0; return null; }
+        if (i != expression.length()) { error(1); i = 0; return null; }
         i = 0;
 
         return String.join("", result).replaceAll("a", "element");

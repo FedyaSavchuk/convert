@@ -1,4 +1,7 @@
 package com.company;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -11,35 +14,41 @@ public class Main {
 
 
     public static String convert(String[] expressions) {
-	    String map = "";
+	    String map = "element";
 	    String filter = "";
+	    List<String> filterList = new ArrayList<>();
 
 	    for (String exp : expressions) {
 	        if (exp.startsWith("map{(") && exp.endsWith(")}")) {
                 String mapExp = exp.substring(4, exp.length() - 1);
 
-                if (map.isEmpty()) {
+                if (map.equals("element")) {
 	                map = mapExp;
                 } else {
 
                     mapExp = mapExp.replaceAll("element", map);
-                    map = Parentheses.parentheses(mapExp, "arithmetic");
-                    map = Simplification.simplify(map);
+                    map = mapExp;
                 }
             }
 
-	        else if (exp.startsWith("filter") && exp.endsWith(")}")) {
+	        else if (exp.startsWith("filter{(") && exp.endsWith(")}")) {
                 String filterExp = exp.substring(7, exp.length() - 1);
-                filterExp = filterExp.replaceAll("element", map);
+                if (!map.equals("element")) {
+                    String temp = Parentheses.parentheses(map, "arithmetic");
+                    filterExp = filterExp.replaceAll("element", Simplification.simplify(temp));
+                }
+
+
 
 	            if (filter.isEmpty() && map.isEmpty()) {
 	                filter = exp;
+                    filterList.add(filter);
                 }
 	            else if (filter.isEmpty()) {
-                    filter = filterExp;
+                    filterList.add(filterExp);
                 }
 	            else {
-	                filter = filter + "&" + filterExp;
+	                filterList.add(filter);
                 }
             }
 
@@ -48,6 +57,23 @@ public class Main {
                 return "SYNTAX ERROR";
             }
         }
+
+	    filter = "";
+	    if (filterList.size() > 1) { filter += "("; }
+	    for (String filt : filterList) {
+	        if (filter.equals("(") || filter.equals("")) {
+	            filter += filt;
+            } else {
+                filter += "&" + filt;
+            }
+        }
+        if (filterList.size() > 1) { filter += ")"; }
+
+        if (!map.equals("element")) {
+            map = Parentheses.parentheses(map, "arithmetic");
+            map = Simplification.simplify(map);
+        }
+
 	    String result = "filter{" + filter + "}%>%map{(" + map + ")}";
         System.out.println(result);
         return result;
